@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-if not '../bit-parser' in sys.path:
+if not '../bitops' in sys.path:
     sys.path.insert(1, '../bitops')
 
 # from BitParser.SubscriberManager import SubscriberManager
