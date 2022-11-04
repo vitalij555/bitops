@@ -1,13 +1,23 @@
-import aenum
+from enum import Enum, auto
 
 
-class ENDIANNESS(aenum.AutoNumberEnum):
-    UNKLNOWN = (),
-    BIG      = (),
-    LITTLE   = (),
+class ENDIANNESS(Enum):
+    UNKLNOWN = 0,
+    BIG      = auto(),
+    LITTLE   = auto(),
 
 
-def get_bit(value, n, endiannes = ENDIANNESS.BIG):
+def get_effective_length_in_bytes(value):
+    bit_length = value.bit_length()
+    length_bytes = int(bit_length/8)
+    if(bit_length%8 > 0):
+        length_bytes += 1
+    if (length:=int(length_bytes)) == 0:
+        return 1
+    else:
+        return length
+
+def is_bit_set(value, n, endiannes = ENDIANNESS.BIG):
     if endiannes == ENDIANNESS.BIG:
         return ((value >> n & 1) != 0)
     elif endiannes == ENDIANNESS.LITTLE:
@@ -16,26 +26,66 @@ def get_bit(value, n, endiannes = ENDIANNESS.BIG):
         raise ValueError("Endianness is not properly set - not able to decite which bit to return")
 
 
+def get_bit(value, n, endiannes = ENDIANNESS.BIG):
+    if value == None:
+        raise ValueError(f"Value can not be None")
+
+    size = get_effective_length_in_bytes(value)
+
+    if n == None or n>(size*8-1) or n<0:
+        raise ValueError(f"Wrong bit number passed: {n} which is out of curen variable's size range: 0-{size*8}")
+
+    if endiannes == ENDIANNESS.BIG:
+        return (value >> n & 1)
+    elif endiannes == ENDIANNESS.LITTLE:
+        return (value >> (size*8-1)-n & 1)
+    else:
+        raise ValueError("Endianness is not properly set - not able to decite which bit to return")
+
+
 def set_bit(value, n, endiannes = ENDIANNESS.BIG):
+    if value == None:
+        raise ValueError(f"Value can not be None")
+
+    size = get_effective_length_in_bytes(value)
+    if n == None or n<0:
+        raise ValueError(f"Wrong bit number passed: {n}")
+
     if endiannes == ENDIANNESS.BIG:
         return value | (1 << n)
     elif endiannes == ENDIANNESS.LITTLE:
-        return value | (1 >> n)
+        return value | (1 << (size*8-1)-n)
     else:
-        raise ValueError("Endianness is not properly set - not able to decite which bit to return")
+        raise ValueError("Endianness is not properly set - not able to decide which bit to return")
 
 
 def clear_bit(value, n, endiannes = ENDIANNESS.BIG):
+    if value == None:
+        raise ValueError(f"Value can not be None")
+
+    size = get_effective_length_in_bytes(value)
+
+    if n == None or n>(size*8-1) or n<0:
+        raise ValueError(f"Wrong bit number passed: {n}")
+
     if endiannes == ENDIANNESS.BIG:
         return value & ~(1 << n)
     elif endiannes == ENDIANNESS.LITTLE:
-        return value & ~(1 >> n)
+        return value & ~(1 << (size*8-1)-n)
     else:
-        raise ValueError("Endianness is not properly set - not able to decite which bit to return")
+        raise ValueError("Endianness is not properly set - not able to decide which bit to return")
 
 
 def get_bit_range_as_int(value, start, end, endiannes = ENDIANNESS.BIG):
-    # print(f"Byte to be analysed: {value:02X} = {value:b}")
+    if value == None:
+        raise ValueError(f"Value can not be None")
+
+    size = get_effective_length_in_bytes(value)
+
+    if start == None or start>(size*8-1) or start < 0:
+        raise ValueError(f"Wrong bit number passed: {start}")
+    if end == None or end>(size*8) or end < 1:
+        raise ValueError(f"Wrong bit number passed: {end}")
 
     if start >= end:
         AssertionError(f"'end' sall be bigger than 'start', condition {start} >= {end} is not satisfied")
@@ -47,7 +97,7 @@ def get_bit_range_as_int(value, start, end, endiannes = ENDIANNESS.BIG):
         for num in range(start, end):
             mask = mask | (1 << num)
     else:
-        for num in range(8-end, 8-start):
+        for num in range((size*8)-end, (size*8)-start):
             mask = mask | (1 << num)
 
     if endiannes == ENDIANNESS.BIG:
@@ -56,5 +106,3 @@ def get_bit_range_as_int(value, start, end, endiannes = ENDIANNESS.BIG):
         return (int.from_bytes(value_byte, byteorder = "little") & mask) >> 8-start
 
 
-if __name__ == "__main__":
-    print(get_bit_range_as_int(0x6F, 5, 6))
