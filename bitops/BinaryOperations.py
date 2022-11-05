@@ -2,9 +2,9 @@ from enum import Enum, auto
 
 
 class ENDIANNESS(Enum):
-    UNKLNOWN = 0,
-    BIG      = auto(),
-    LITTLE   = auto(),
+    UNKLNOWN = 0
+    BIG      = auto()
+    LITTLE   = auto()
 
 
 def get_effective_length_in_bytes(value):
