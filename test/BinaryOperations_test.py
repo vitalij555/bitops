@@ -7,7 +7,9 @@ if not '../bitops' in sys.path:
     sys.path.insert(1, '../bitops')
 
 
-from bitops.BinaryOperations import get_bit, set_bit, clear_bit, get_bit_range_as_int, ENDIANNESS
+from bitops.BinaryOperations import get_bit, set_bit, clear_bit, get_bit_range_as_int, ENDIANNESS, \
+    set_bit_range_from_int
+
 
 class TestBinaryOperations:
     def test_get_bit_ok(self):
@@ -74,6 +76,7 @@ class TestBinaryOperations:
         with pytest.raises(ValueError):
             set_bit(0x12, None)
 
+
     def test_clear_bit_ok(self):
         assert 0x00 == clear_bit(0x04, 2)
         assert 0x7F == clear_bit(0xFF, 7)
@@ -98,3 +101,17 @@ class TestBinaryOperations:
         assert 8 == get_bit_range_as_int(0x80, 4, 8)
         assert 2 == get_bit_range_as_int(0x80, 6, 8)
         assert 3 == get_bit_range_as_int(0xFF, 6, 8)
+
+
+    def test_set_bit_range_from_int(self):
+        assert 5 == set_bit_range_from_int(0x00, 0, 5, endiannes=ENDIANNESS.BIG)
+        assert 0b10100 == set_bit_range_from_int(0x00, 2, 5, endiannes=ENDIANNESS.BIG)
+        assert 0b01001100 == set_bit_range_from_int(0b01000000, 2, 3, endiannes=ENDIANNESS.BIG)
+        assert 0b11000000 == set_bit_range_from_int(0b01000000, 6, 3, endiannes=ENDIANNESS.BIG)
+
+
+    def test_set_bit_range_from_int_little(self):
+        assert 1 == 1
+        assert 0b10100000 == set_bit_range_from_int(0x00, 0, 5, endiannes=ENDIANNESS.LITTLE)
+        assert 0b00101000 == set_bit_range_from_int(0x00, 2, 5, endiannes=ENDIANNESS.LITTLE)
+        assert 0b01110000 == set_bit_range_from_int(0b01000000, 2, 3, endiannes=ENDIANNESS.LITTLE)

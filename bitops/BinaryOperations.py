@@ -106,3 +106,28 @@ def get_bit_range_as_int(value, start, end, endiannes = ENDIANNESS.BIG):
         return (int.from_bytes(value_byte, byteorder = "little") & mask) >> 8-start
 
 
+def set_bit_range_from_int(target_byte, pos, value, endiannes = ENDIANNESS.BIG):
+    if target_byte == None:
+        raise ValueError(f"Value can not be None")
+
+    size = get_effective_length_in_bytes(target_byte)
+    value_size_in_bits = value.bit_length()
+
+    if pos == None or pos>(size*8-1) or pos < 0:
+        raise ValueError(f"Wrong pos passed: {pos} - unable to set bits in a target of size {size*8}")
+
+    if pos+value_size_in_bits >= (size*8):
+        AssertionError(f"'end' sall be bigger than 'start', condition {pos+value_size_in_bits} >= {size*8} is not satisfied")
+
+    value_byte = target_byte.to_bytes(length = 1, byteorder = "big")
+
+    mask = 0x00
+    if endiannes == ENDIANNESS.BIG:
+        value = value << pos
+    else:
+        value = value << (size*8)-(pos+value_size_in_bits)
+
+    if endiannes == ENDIANNESS.BIG:
+        return int.from_bytes(value_byte, byteorder = "big") | value
+    else:
+        return int.from_bytes(value_byte, byteorder = "little") | value
