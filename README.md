@@ -111,7 +111,6 @@ Bounds are validated against the current byte-width of `target_byte`.
 This repo uses `pytest`.
 
 ```python
-pip install -r requirements-dev.txt
 pytest -v
 ```
 
@@ -146,6 +145,7 @@ Issues and PRs are welcome! Please:
 ## License
 
 MIT License — see `LICENSE`.
+
 
 
 
