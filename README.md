@@ -26,7 +26,7 @@ Works great as a foundation for parsers (e.g., BER-TLV, EMV) and binary protocol
 
 ```bash
 pip install bitops
-
+```
 
 ## Quick Start
 
@@ -146,6 +146,7 @@ Issues and PRs are welcome! Please:
 ## License
 
 MIT License — see `LICENSE`.
+
 
 
 
